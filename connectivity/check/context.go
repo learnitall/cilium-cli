@@ -69,7 +69,7 @@ func (ct *ConnectivityTest) verbose() bool {
 	return ct.params.Verbose
 }
 
-// verbose returns the value of the user-provided debug flag.
+// debug returns the value of the user-provided debug flag.
 func (ct *ConnectivityTest) debug() bool {
 	return ct.params.Debug
 }
