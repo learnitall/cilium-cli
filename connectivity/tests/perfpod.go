@@ -39,12 +39,37 @@ func (s *netPerfPodtoPod) Name() string {
 	return fmt.Sprintf("%s:%s", tn, s.name)
 }
 
+func (s *netPerfPodtoPod) makeTestsFromParams(t *check.Test) (tests []string) {
+	params := t.Context().Params()
+
+	if params.PerfTCP_CRR {
+		tests = append(tests, "TCP_CRR")
+	}
+	if params.PerfTCP_RR {
+		tests = append(tests, "TCP_RR")
+	}
+	if params.PerfTCP_STREAM {
+		tests = append(tests, "TCP_STREAM")
+	}
+	if params.PerfUDP_RR {
+		tests = append(tests, "UDP_RR")
+	}
+	if params.PerfUDP_STREAM {
+		tests = append(tests, "UDP_STREAM")
+	}
+
+	return
+}
+
 func (s *netPerfPodtoPod) Run(ctx context.Context, t *check.Test) {
 	samples := t.Context().Params().PerfSamples
 	duration := t.Context().Params().PerfDuration
-	crr := t.Context().Params().PerfCRR
+	tests := s.makeTestsFromParams(t)
+	if len(tests) == 0 {
+		t.Info("No perf tests given, defaulting to TCP_STREAM")
+		tests = append(tests, "TCP_STREAM")
+	}
 	for _, c := range t.Context().PerfClientPods() {
-		c := c
 		for _, server := range t.Context().PerfServerPod() {
 			var scenarioName string
 			if c.Pod.Spec.HostNetwork {
@@ -55,13 +80,9 @@ func (s *netPerfPodtoPod) Run(ctx context.Context, t *check.Test) {
 			action := t.NewAction(s, "netperf", &c, server)
 			action.CollectFlows = false
 			action.Run(func(a *check.Action) {
-				if crr {
-					netperf(ctx, server.Pod.Status.PodIP, c.Pod.Name, "TCP_CRR", a, t.Context().PerfResults, 1, 30, scenarioName)
-				} else {
-					netperf(ctx, server.Pod.Status.PodIP, c.Pod.Name, "TCP_RR", a, t.Context().PerfResults, samples, duration, scenarioName)
-					netperf(ctx, server.Pod.Status.PodIP, c.Pod.Name, "TCP_STREAM", a, t.Context().PerfResults, samples, duration, scenarioName)
-					netperf(ctx, server.Pod.Status.PodIP, c.Pod.Name, "UDP_RR", a, t.Context().PerfResults, samples, duration, scenarioName)
-					netperf(ctx, server.Pod.Status.PodIP, c.Pod.Name, "UDP_STREAM", a, t.Context().PerfResults, samples, duration, scenarioName)
+				for _, test := range tests {
+					t.Debugf("Running %d netperf %s samples from %s to %s, duration %f seconds", samples, test, c.Pod.Name, server.Pod.Name, duration.Seconds())
+					netperf(ctx, server.Pod.Status.PodIP, c.Pod.Name, test, a, t.Context().PerfResults, samples, duration, scenarioName)
 				}
 			})
 		}

@@ -39,9 +39,13 @@ type Parameters struct {
 	SkipIPCacheCheck      bool
 	Perf                  bool
 	PerfDuration          time.Duration
-	PerfCRR               bool
 	PerfHostNet           bool
 	PerfSamples           int
+	PerfTCP_CRR           bool
+	PerfTCP_RR            bool
+	PerfTCP_STREAM        bool
+	PerfUDP_RR            bool
+	PerfUDP_STREAM        bool
 	CurlImage             string
 	PerformanceImage      string
 	JSONMockImage         string
