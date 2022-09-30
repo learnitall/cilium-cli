@@ -130,6 +130,7 @@ func newCmdConnectivityTest() *cobra.Command {
 	cmd.Flags().BoolVar(&params.PerfTCP_STREAM, "perf-tcp-stream", false, "Run Netperf TCP_STREAM test")
 	cmd.Flags().BoolVar(&params.PerfUDP_RR, "perf-udp-rr", false, "Run Netperf UDP_RR test")
 	cmd.Flags().BoolVar(&params.PerfUDP_STREAM, "perf-udp-stream", false, "Run Netperf UDP_STREAM test")
+	cmd.Flags().StringVar(&params.PerfJsonFile, "perf-json", "", "export results as json to the given file")
 	cmd.Flags().BoolVar(&params.PerfHostNet, "host-net", false, "Use host networking during network performance tests")
 	cmd.Flags().MarkHidden("skip-ip-cache-check")
 	cmd.Flags().StringVar(&params.CurlImage, "curl-image", defaults.ConnectivityCheckAlpineCurlImage, "Image path to use for curl")

@@ -82,19 +82,15 @@ func (s *netPerfPodtoPod) Run(ctx context.Context, t *check.Test) {
 			action.Run(func(a *check.Action) {
 				for _, test := range tests {
 					t.Debugf("Running %d netperf %s samples from %s to %s, duration %f seconds", samples, test, c.Pod.Name, server.Pod.Name, duration.Seconds())
-					netperf(ctx, server.Pod.Status.PodIP, c.Pod.Name, test, a, t.Context().PerfResults, samples, duration, scenarioName)
+					netperf(ctx, server.Pod.Status.PodIP, c.Pod.Name, test, a, &t.Context().PerfResults, samples, duration, scenarioName)
 				}
 			})
 		}
 	}
 }
 
-func netperf(ctx context.Context, sip string, podname string, test string, a *check.Action, result map[check.PerfTests]check.PerfResult, samples int, duration time.Duration, scenarioName string) {
+func netperf(ctx context.Context, sip string, podname string, test string, a *check.Action, results *[]check.PerfResult, samples int, duration time.Duration, scenarioName string) {
 	// Define test about to be executed and from which pod
-	k := check.PerfTests{
-		Pod:  podname,
-		Test: test,
-	}
 	metric := string("OP/s")
 	if strings.Contains(test, "STREAM") {
 		metric = "Mb/s"
@@ -124,6 +120,8 @@ func netperf(ctx context.Context, sip string, podname string, test string, a *ch
 		}
 	}
 	res := check.PerfResult{
+		Pod:      podname,
+		Test:     test,
 		Scenario: scenarioName,
 		Metric:   metric,
 		Duration: duration,
@@ -131,7 +129,7 @@ func netperf(ctx context.Context, sip string, podname string, test string, a *ch
 		Samples:  samples,
 		Avg:      listAvg(values),
 	}
-	result[k] = res
+	*results = append(*results, res)
 }
 
 func listAvg(list []float64) float64 {

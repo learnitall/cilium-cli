@@ -46,6 +46,7 @@ type Parameters struct {
 	PerfTCP_STREAM        bool
 	PerfUDP_RR            bool
 	PerfUDP_STREAM        bool
+	PerfJsonFile          string
 	CurlImage             string
 	PerformanceImage      string
 	JSONMockImage         string

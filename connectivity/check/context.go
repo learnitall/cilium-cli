@@ -6,7 +6,9 @@ package check
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -43,7 +45,7 @@ type ConnectivityTest struct {
 	clientPods        map[string]Pod
 	perfClientPods    map[string]Pod
 	perfServerPod     map[string]Pod
-	PerfResults       map[PerfTests]PerfResult
+	PerfResults       []PerfResult
 	echoServices      map[string]Service
 	externalWorkloads map[string]ExternalWorkload
 
@@ -57,18 +59,15 @@ type ConnectivityTest struct {
 	nodesWithoutCilium []string
 }
 
-type PerfTests struct {
-	Pod  string
-	Test string
-}
-
 type PerfResult struct {
-	Metric   string
-	Scenario string
-	Duration time.Duration
-	Samples  int
-	Values   []float64
-	Avg      float64
+	Pod      string        `json:"pod"`
+	Test     string        `json:"test"`
+	Metric   string        `json:"metric"`
+	Scenario string        `json:"scenario"`
+	Duration time.Duration `json:"duration"`
+	Samples  int           `json:"samples"`
+	Values   []float64     `json:"values"`
+	Avg      float64       `json:"avg"`
 }
 
 // verbose returns the value of the user-provided verbosity flag.
@@ -165,7 +164,7 @@ func NewConnectivityTest(client *k8s.Client, p Parameters) (*ConnectivityTest, e
 		clientPods:          make(map[string]Pod),
 		perfClientPods:      make(map[string]Pod),
 		perfServerPod:       make(map[string]Pod),
-		PerfResults:         make(map[PerfTests]PerfResult),
+		PerfResults:         make([]PerfResult, 0),
 		echoServices:        make(map[string]Service),
 		externalWorkloads:   make(map[string]ExternalWorkload),
 		hostNetNSPodsByNode: make(map[string]Pod),
@@ -351,17 +350,37 @@ func (ct *ConnectivityTest) report() error {
 		return fmt.Errorf("%d tests failed", nf)
 	}
 
-	if ct.params.Perf {
+	perfPrintTable := func() {
 		// Report Performance results
 		ct.Headerf("🔥 Performance Test Summary: ")
 		ct.Logf("%s", strings.Repeat("-", 145))
 		ct.Logf("📋 %-15s | %-50s | %-15s | %-15s | %-15s | %-15s", "Scenario", "Pod", "Test", "Num Samples", "Duration", "Avg value")
 		ct.Logf("%s", strings.Repeat("-", 145))
-		for p, d := range ct.PerfResults {
-			ct.Logf("📋 %-15s | %-50s | %-15s | %-15d | %-15s | %.2f (%s)", d.Scenario, p.Pod, p.Test, d.Samples, d.Duration, d.Avg, d.Metric)
+		for _, d := range ct.PerfResults {
+			ct.Logf("📋 %-15s | %-50s | %-15s | %-15d | %-15s | %.2f (%s)", d.Scenario, d.Pod, d.Test, d.Samples, d.Duration, d.Avg, d.Metric)
 			ct.Debugf("Individual Values from run : %s", d.Values)
 		}
 		ct.Logf("%s", strings.Repeat("-", 145))
+	}
+	perfSaveJson := func() {
+		res, err := json.MarshalIndent(ct.PerfResults, "", "    ")
+		if err != nil {
+			ct.Fatalf("unable to marshal performance results to json: %s", err)
+		} else {
+			err = os.WriteFile(ct.params.PerfJsonFile, res, 0744)
+			if err != nil {
+				ct.Fatalf("unable to write performance results to json file %s: %s", ct.params.PerfJsonFile, err)
+			} else {
+				ct.Logf("🔥 Performance results saved as json to %s", ct.params.PerfJsonFile)
+			}
+		}
+	}
+
+	if ct.params.Perf {
+		perfPrintTable()
+		if ct.params.PerfJsonFile != "" {
+			perfSaveJson()
+		}
 	}
 
 	ct.Headerf("✅ All %d tests (%d actions) successful, %d tests skipped, %d scenarios skipped.", nt-nst, na, nst, nss)
