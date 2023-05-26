@@ -344,7 +344,7 @@ func (c *Client) DeletePodCollection(ctx context.Context, namespace string, opts
 }
 
 func (c *Client) ListPods(ctx context.Context, namespace string, options metav1.ListOptions) (*corev1.PodList, error) {
-	return c.Clientset.CoreV1().Pods(namespace).List(ctx, options)
+	return c.Clientset.CoreV1().Pods(namespace).List(ctx, WithZeroResourceVersion(options))
 }
 
 func (c *Client) PodLogs(namespace, name string, opts *corev1.PodLogOptions) *rest.Request {
@@ -404,7 +404,7 @@ func (c *Client) CiliumLogs(ctx context.Context, namespace, pod string, since ti
 }
 
 func (c *Client) ListServices(ctx context.Context, namespace string, options metav1.ListOptions) (*corev1.ServiceList, error) {
-	return c.Clientset.CoreV1().Services(namespace).List(ctx, options)
+	return c.Clientset.CoreV1().Services(namespace).List(ctx, WithZeroResourceVersion(options))
 }
 
 func (c *Client) ExecInPodWithStderr(ctx context.Context, namespace, pod, container string, command []string) (bytes.Buffer, bytes.Buffer, error) {
@@ -489,7 +489,7 @@ func (c *Client) GetDaemonSet(ctx context.Context, namespace, name string, opts 
 }
 
 func (c *Client) ListDaemonSet(ctx context.Context, namespace string, o metav1.ListOptions) (*appsv1.DaemonSetList, error) {
-	return c.Clientset.AppsV1().DaemonSets(namespace).List(ctx, o)
+	return c.Clientset.AppsV1().DaemonSets(namespace).List(ctx, WithZeroResourceVersion(o))
 }
 
 func (c *Client) DeleteDaemonSet(ctx context.Context, namespace, name string, opts metav1.DeleteOptions) error {
@@ -503,7 +503,7 @@ func (c *Client) GetCRD(ctx context.Context, name string, opts metav1.GetOptions
 // Kubernetes Network Policies specific commands
 
 func (c *Client) ListKubernetesNetworkPolicies(ctx context.Context, namespace string, opts metav1.ListOptions) (*networkingv1.NetworkPolicyList, error) {
-	return c.Clientset.NetworkingV1().NetworkPolicies(namespace).List(ctx, opts)
+	return c.Clientset.NetworkingV1().NetworkPolicies(namespace).List(ctx, WithZeroResourceVersion(opts))
 }
 
 func (c *Client) GetKubernetesNetworkPolicy(ctx context.Context, namespace, name string, opts metav1.GetOptions) (*networkingv1.NetworkPolicy, error) {
@@ -658,19 +658,19 @@ func (c *Client) GetCiliumEndpoint(ctx context.Context, namespace, name string, 
 }
 
 func (c *Client) ListCiliumEndpoints(ctx context.Context, namespace string, options metav1.ListOptions) (*ciliumv2.CiliumEndpointList, error) {
-	return c.CiliumClientset.CiliumV2().CiliumEndpoints(namespace).List(ctx, options)
+	return c.CiliumClientset.CiliumV2().CiliumEndpoints(namespace).List(ctx, WithZeroResourceVersion(options))
 }
 
 func (c *Client) ListCiliumEndpointSlices(ctx context.Context, options metav1.ListOptions) (*ciliumv2alpha1.CiliumEndpointSliceList, error) {
-	return c.CiliumClientset.CiliumV2alpha1().CiliumEndpointSlices().List(ctx, options)
+	return c.CiliumClientset.CiliumV2alpha1().CiliumEndpointSlices().List(ctx, WithZeroResourceVersion(options))
 }
 
 func (c *Client) ListCiliumEnvoyConfigs(ctx context.Context, namespace string, options metav1.ListOptions) (*ciliumv2.CiliumEnvoyConfigList, error) {
-	return c.CiliumClientset.CiliumV2().CiliumEnvoyConfigs(namespace).List(ctx, options)
+	return c.CiliumClientset.CiliumV2().CiliumEnvoyConfigs(namespace).List(ctx, WithZeroResourceVersion(options))
 }
 
 func (c *Client) ListNodes(ctx context.Context, options metav1.ListOptions) (*corev1.NodeList, error) {
-	return c.Clientset.CoreV1().Nodes().List(ctx, options)
+	return c.Clientset.CoreV1().Nodes().List(ctx, WithZeroResourceVersion(options))
 }
 
 func (c *Client) PatchNode(ctx context.Context, nodeName string, pt types.PatchType, data []byte) (*corev1.Node, error) {
@@ -678,7 +678,7 @@ func (c *Client) PatchNode(ctx context.Context, nodeName string, pt types.PatchT
 }
 
 func (c *Client) ListCiliumExternalWorkloads(ctx context.Context, opts metav1.ListOptions) (*ciliumv2.CiliumExternalWorkloadList, error) {
-	return c.CiliumClientset.CiliumV2().CiliumExternalWorkloads().List(ctx, opts)
+	return c.CiliumClientset.CiliumV2().CiliumExternalWorkloads().List(ctx, WithZeroResourceVersion(opts))
 }
 
 func (c *Client) GetCiliumExternalWorkload(ctx context.Context, name string, opts metav1.GetOptions) (*ciliumv2.CiliumExternalWorkload, error) {
@@ -694,7 +694,7 @@ func (c *Client) DeleteCiliumExternalWorkload(ctx context.Context, name string, 
 }
 
 func (c *Client) ListCiliumNetworkPolicies(ctx context.Context, namespace string, opts metav1.ListOptions) (*ciliumv2.CiliumNetworkPolicyList, error) {
-	return c.CiliumClientset.CiliumV2().CiliumNetworkPolicies(namespace).List(ctx, opts)
+	return c.CiliumClientset.CiliumV2().CiliumNetworkPolicies(namespace).List(ctx, WithZeroResourceVersion(opts))
 }
 
 func (c *Client) GetCiliumNetworkPolicy(ctx context.Context, namespace, name string, opts metav1.GetOptions) (*ciliumv2.CiliumNetworkPolicy, error) {
@@ -714,7 +714,7 @@ func (c *Client) DeleteCiliumNetworkPolicy(ctx context.Context, namespace, name 
 }
 
 func (c *Client) ListCiliumEgressGatewayPolicies(ctx context.Context, opts metav1.ListOptions) (*ciliumv2.CiliumEgressGatewayPolicyList, error) {
-	return c.CiliumClientset.CiliumV2().CiliumEgressGatewayPolicies().List(ctx, opts)
+	return c.CiliumClientset.CiliumV2().CiliumEgressGatewayPolicies().List(ctx, WithZeroResourceVersion(opts))
 }
 
 func (c *Client) GetCiliumEgressGatewayPolicy(ctx context.Context, name string, opts metav1.GetOptions) (*ciliumv2.CiliumEgressGatewayPolicy, error) {
@@ -734,19 +734,19 @@ func (c *Client) DeleteCiliumEgressGatewayPolicy(ctx context.Context, name strin
 }
 
 func (c *Client) ListCiliumBGPPeeringPolicies(ctx context.Context, opts metav1.ListOptions) (*ciliumv2alpha1.CiliumBGPPeeringPolicyList, error) {
-	return c.CiliumClientset.CiliumV2alpha1().CiliumBGPPeeringPolicies().List(ctx, opts)
+	return c.CiliumClientset.CiliumV2alpha1().CiliumBGPPeeringPolicies().List(ctx, WithZeroResourceVersion(opts))
 }
 
 func (c *Client) ListCiliumCIDRGroups(ctx context.Context, opts metav1.ListOptions) (*ciliumv2alpha1.CiliumCIDRGroupList, error) {
-	return c.CiliumClientset.CiliumV2alpha1().CiliumCIDRGroups().List(ctx, opts)
+	return c.CiliumClientset.CiliumV2alpha1().CiliumCIDRGroups().List(ctx, WithZeroResourceVersion(opts))
 }
 
 func (c *Client) ListCiliumClusterwideNetworkPolicies(ctx context.Context, opts metav1.ListOptions) (*ciliumv2.CiliumClusterwideNetworkPolicyList, error) {
-	return c.CiliumClientset.CiliumV2().CiliumClusterwideNetworkPolicies().List(ctx, opts)
+	return c.CiliumClientset.CiliumV2().CiliumClusterwideNetworkPolicies().List(ctx, WithZeroResourceVersion(opts))
 }
 
 func (c *Client) ListCiliumClusterwideEnvoyConfigs(ctx context.Context, opts metav1.ListOptions) (*ciliumv2.CiliumClusterwideEnvoyConfigList, error) {
-	return c.CiliumClientset.CiliumV2().CiliumClusterwideEnvoyConfigs().List(ctx, opts)
+	return c.CiliumClientset.CiliumV2().CiliumClusterwideEnvoyConfigs().List(ctx, WithZeroResourceVersion(opts))
 }
 
 func (c *Client) GetCiliumClusterwideNetworkPolicy(ctx context.Context, name string, opts metav1.GetOptions) (*ciliumv2.CiliumClusterwideNetworkPolicy, error) {
@@ -774,11 +774,11 @@ func (c *Client) GetVersion(_ context.Context) (string, error) {
 }
 
 func (c *Client) ListEvents(ctx context.Context, o metav1.ListOptions) (*corev1.EventList, error) {
-	return c.Clientset.CoreV1().Events(corev1.NamespaceAll).List(ctx, o)
+	return c.Clientset.CoreV1().Events(corev1.NamespaceAll).List(ctx, WithZeroResourceVersion(o))
 }
 
 func (c *Client) ListNamespaces(ctx context.Context, o metav1.ListOptions) (*corev1.NamespaceList, error) {
-	return c.Clientset.CoreV1().Namespaces().List(ctx, o)
+	return c.Clientset.CoreV1().Namespaces().List(ctx, WithZeroResourceVersion(o))
 }
 
 func (c *Client) GetPodsTable(_ context.Context) (*metav1.Table, error) {
@@ -813,37 +813,37 @@ func (c *Client) GetPodsTable(_ context.Context) (*metav1.Table, error) {
 
 func (c *Client) ListUnstructured(ctx context.Context, gvr schema.GroupVersionResource, namespace *string, o metav1.ListOptions) (*unstructured.UnstructuredList, error) {
 	if namespace == nil {
-		return c.DynamicClientset.Resource(gvr).List(ctx, o)
+		return c.DynamicClientset.Resource(gvr).List(ctx, WithZeroResourceVersion(o))
 	}
-	return c.DynamicClientset.Resource(gvr).Namespace(*namespace).List(ctx, o)
+	return c.DynamicClientset.Resource(gvr).Namespace(*namespace).List(ctx, WithZeroResourceVersion(o))
 }
 
 func (c *Client) ListEndpoints(ctx context.Context, o metav1.ListOptions) (*corev1.EndpointsList, error) {
-	return c.Clientset.CoreV1().Endpoints(corev1.NamespaceAll).List(ctx, o)
+	return c.Clientset.CoreV1().Endpoints(corev1.NamespaceAll).List(ctx, WithZeroResourceVersion(o))
 }
 
 func (c *Client) ListIngressClasses(ctx context.Context, o metav1.ListOptions) (*networkingv1.IngressClassList, error) {
-	return c.Clientset.NetworkingV1().IngressClasses().List(ctx, o)
+	return c.Clientset.NetworkingV1().IngressClasses().List(ctx, WithZeroResourceVersion(o))
 }
 
 func (c *Client) ListIngresses(ctx context.Context, o metav1.ListOptions) (*networkingv1.IngressList, error) {
-	return c.Clientset.NetworkingV1().Ingresses(corev1.NamespaceAll).List(ctx, o)
+	return c.Clientset.NetworkingV1().Ingresses(corev1.NamespaceAll).List(ctx, WithZeroResourceVersion(o))
 }
 
 func (c *Client) ListNetworkPolicies(ctx context.Context, o metav1.ListOptions) (*networkingv1.NetworkPolicyList, error) {
-	return c.Clientset.NetworkingV1().NetworkPolicies(corev1.NamespaceAll).List(ctx, o)
+	return c.Clientset.NetworkingV1().NetworkPolicies(corev1.NamespaceAll).List(ctx, WithZeroResourceVersion(o))
 }
 
 func (c *Client) ListCiliumIdentities(ctx context.Context) (*ciliumv2.CiliumIdentityList, error) {
-	return c.CiliumClientset.CiliumV2().CiliumIdentities().List(ctx, metav1.ListOptions{})
+	return c.CiliumClientset.CiliumV2().CiliumIdentities().List(ctx, WithZeroResourceVersion(metav1.ListOptions{}))
 }
 
 func (c *Client) ListCiliumNodes(ctx context.Context) (*ciliumv2.CiliumNodeList, error) {
-	return c.CiliumClientset.CiliumV2().CiliumNodes().List(ctx, metav1.ListOptions{})
+	return c.CiliumClientset.CiliumV2().CiliumNodes().List(ctx, WithZeroResourceVersion(metav1.ListOptions{}))
 }
 
 func (c *Client) ListCiliumNodeConfigs(ctx context.Context, namespace string, opts metav1.ListOptions) (*ciliumv2alpha1.CiliumNodeConfigList, error) {
-	return c.CiliumClientset.CiliumV2alpha1().CiliumNodeConfigs(namespace).List(ctx, opts)
+	return c.CiliumClientset.CiliumV2alpha1().CiliumNodeConfigs(namespace).List(ctx, WithZeroResourceVersion(opts))
 }
 
 func (c *Client) GetLogs(ctx context.Context, namespace, name, container string, sinceTime time.Time, limitBytes int64, previous bool) (string, error) {
@@ -952,11 +952,11 @@ func (c *Client) GetRunningCiliumVersion(ctx context.Context, namespace string) 
 }
 
 func (c *Client) ListCiliumLoadBalancerIPPools(ctx context.Context, opts metav1.ListOptions) (*ciliumv2alpha1.CiliumLoadBalancerIPPoolList, error) {
-	return c.CiliumClientset.CiliumV2alpha1().CiliumLoadBalancerIPPools().List(ctx, opts)
+	return c.CiliumClientset.CiliumV2alpha1().CiliumLoadBalancerIPPools().List(ctx, WithZeroResourceVersion(opts))
 }
 
 func (c *Client) ListCiliumLocalRedirectPolicies(ctx context.Context, namespace string, opts metav1.ListOptions) (*ciliumv2.CiliumLocalRedirectPolicyList, error) {
-	return c.CiliumClientset.CiliumV2().CiliumLocalRedirectPolicies(namespace).List(ctx, opts)
+	return c.CiliumClientset.CiliumV2().CiliumLocalRedirectPolicies(namespace).List(ctx, WithZeroResourceVersion(opts))
 }
 
 func (c *Client) GetPlatform(_ context.Context) (*Platform, error) {
@@ -1095,5 +1095,5 @@ func (c *Client) CreateEphemeralContainer(ctx context.Context, pod *corev1.Pod, 
 // Tetragon Specific commands
 
 func (c *Client) ListTetragonTracingPolicies(ctx context.Context, opts metav1.ListOptions) (*tetragonv1alpha1.TracingPolicyList, error) {
-	return c.TetragonClientset.CiliumV1alpha1().TracingPolicies().List(ctx, opts)
+	return c.TetragonClientset.CiliumV1alpha1().TracingPolicies().List(ctx, WithZeroResourceVersion(opts))
 }

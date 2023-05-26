@@ -72,3 +72,14 @@ func NewTLSSecret(name, namespace string, data map[string][]byte) *corev1.Secret
 		Type: corev1.SecretTypeTLS,
 	}
 }
+
+// WithZeroResourceVersion modifies and returns a new instance of a
+// metav1.ListOptions with a resource version match set to anything greater
+// zero. This allows for resources to be listed from the k8s apiserver's cache,
+// rather than requiring the k8s apiserver to first list items from etcd.
+func WithZeroResourceVersion(opts metav1.ListOptions) metav1.ListOptions {
+	opts.ResourceVersion = "0"
+	opts.ResourceVersionMatch = metav1.ResourceVersionMatchNotOlderThan
+
+	return opts
+}
